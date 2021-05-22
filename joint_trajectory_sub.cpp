@@ -61,8 +61,11 @@ void *jointStaesPublisher(void *a){
 	jointState.position.push_back(0.0);
 	jointState.position.push_back(0.0);
 	jointState.position.push_back(0.0);
+	ros::Rate r(10);
+	std::cout<<"ROS JOINT STATE PUBLISHER IS ON"<<std::endl;
 	while (ros::ok()){
 		ros::spinOnce();
+		
 		jointState.header.stamp = ros::Time::now();
 		jointState.position[0] = move_joint_values[0];
 		jointState.position[1] = move_joint_values[1];
@@ -85,8 +88,6 @@ std::vector<std::array<double,7>> splineJointTrajectory(std::vector<std::array<d
 	Tlist.push_back(double(Tf/(N-1)*j/1.0));
         
    }		
-   std::cout<<"-----------Tlist-----------"<<std::endl;
-   std::cout<<"-----------thetalist-----------"<<std::endl;
    std::vector<std::vector<double>> all_spline_thetalist;
    std::vector<std::vector<double>> all_spline_dthetalist;
 
@@ -153,7 +154,6 @@ class Controller {
   }
   inline franka::Torques step(const franka::RobotState& state) {
     updateDQFilter(state);
-    move_joint_values = state.q;
     std::array<double, 7> tau_J_d;  // NOLINT(readability-identifier-naming)
     for (size_t i = 0; i < 7; i++) {
       tau_J_d[i] = K_P_[i] * (state.q_d[i] - state.q[i]) + K_D_[i] * (dq_d_[i] - getDQFiltered(i));
@@ -219,9 +219,8 @@ int main(int argc, char** argv) {
   double end_time = atoi(argv[3]);
 
   if(is_sim==0){
-        pthread_t p_thread;
-	int status;
-	int thr_id = pthread_create(&p_thread, NULL, jointStaesPublisher,(void *)"");
+
+
 	std::cout<<"This is Real Robot Program"<<std::endl;
 	// Parameters
 	const size_t joint_number{3};
@@ -244,11 +243,44 @@ int main(int argc, char** argv) {
 	}
 	ros::NodeHandle nh;
 	ros::Subscriber sub = nh.subscribe("joint_trajectory", 1,rosJointTrajectoryCallback); 
+	ros::Publisher pub =  nh.advertise<sensor_msgs::JointState>("joint_states", 1000);
 	ros::Rate r(10);
 	std::cout<<"ROS JOINT TRAJECTORY SUBSCRIBER IS ON"<<std::endl;
 
-
+	sensor_msgs::JointState jointState;
+	jointState.name.push_back("panda_joint1");
+	jointState.name.push_back("panda_joint2");
+	jointState.name.push_back("panda_joint3");
+	jointState.name.push_back("panda_joint4");
+	jointState.name.push_back("panda_joint5");
+	jointState.name.push_back("panda_joint6");
+	jointState.name.push_back("panda_joint7");
+	jointState.position.push_back(0.0);
+	jointState.position.push_back(0.0);
+	jointState.position.push_back(0.0);
+	jointState.position.push_back(0.0);
+	jointState.position.push_back(0.0);
+	jointState.position.push_back(0.0);
+	jointState.position.push_back(0.0);
 	while(ros::ok()){
+
+
+		size_t count = 0;
+		robot.read([&count](const franka::RobotState& robot_state) {
+			move_joint_values=robot_state.q;
+			return count++ < 1;
+		});
+
+		jointState.header.stamp = ros::Time::now();
+		jointState.position[0] = move_joint_values[0];
+		jointState.position[1] = move_joint_values[1];
+		jointState.position[2] = move_joint_values[2];
+		jointState.position[3] = move_joint_values[3];
+		jointState.position[4] = move_joint_values[4];
+		jointState.position[5] = move_joint_values[5];
+		jointState.position[6] = move_joint_values[6];
+		pub.publish(jointState);
+
 		if(trig_command==1 && q_list.size()>0){
 			try {
 				if(q_list.size()==0)continue;
@@ -294,6 +326,8 @@ int main(int argc, char** argv) {
 					  }
 					  return velocities;
 				});
+
+
 			  } catch (const franka::ControlException& e) {
 			    std::cout << e.what() << std::endl;
 			    
@@ -305,45 +339,75 @@ int main(int argc, char** argv) {
 		trig_command = 0;
 		q_list.clear();
 		}
+
 	ros::spinOnce();
 	r.sleep();
 	}
-	pthread_join(p_thread, (void **)&status);
+
  }//is sim
 
 else{
-			try{ros::init(argc,argv,"trajectory_test_sub");}
-			catch(int e){ctrlchandler(1);}
-			ros::NodeHandle nh;
-			ros::Subscriber sub = nh.subscribe("joint_trajectory", 1,rosJointTrajectoryCallback); 
-			ros::Rate r(10);
-			std::cout<<"ROS JOINT TRAJECTORY SUBSCRIBER IS ON"<<std::endl;
-			while (ros::ok()){
 
-				if(trig_command==1 && q_list.size()>0){
-					
-					
-					double dt = 0.001;
-				        std::vector<std::array<double,7>> trajectory = splineJointTrajectory(q_list,end_time,dt, 1);
-					for(int index = 0;index<trajectory.size()-1;index++){
-					  franka::JointVelocities velocities{{0, 0, 0, 0, 0, 0, 0}};
 
-					  velocities.dq[0] = trajectory.at(index)[0];
-					  velocities.dq[1] = trajectory.at(index)[1];
-					  velocities.dq[2] = trajectory.at(index)[2];
-					  velocities.dq[3] = trajectory.at(index)[3];
-					  velocities.dq[4] = trajectory.at(index)[4];
-					  velocities.dq[5] = trajectory.at(index)[5];
-					  velocities.dq[6] = trajectory.at(index)[6];
-					  //std::cout<<"index "<<index<<"  :  ";
-  					  print_q(velocities.dq);
-					}
-					trig_command = 0;
-					q_list.clear();
-				}	
-				
-				ros::spinOnce();
+	try{ros::init(argc,argv,"trajectory_subscriber");}
+	catch(int e){ctrlchandler(1);}
+	ros::NodeHandle nh;
+	ros::Subscriber sub = nh.subscribe("joint_trajectory", 1,rosJointTrajectoryCallback); 
+	ros::Publisher pub =  nh.advertise<sensor_msgs::JointState>("joint_states", 1000);
+	ros::Rate r(10);
+	std::cout<<"ROS JOINT TRAJECTORY SUBSCRIBER IS ON"<<std::endl;
+	sensor_msgs::JointState jointState;
+	jointState.name.push_back("panda_joint1");
+	jointState.name.push_back("panda_joint2");
+	jointState.name.push_back("panda_joint3");
+	jointState.name.push_back("panda_joint4");
+	jointState.name.push_back("panda_joint5");
+	jointState.name.push_back("panda_joint6");
+	jointState.name.push_back("panda_joint7");
+	jointState.position.push_back(0.0);
+	jointState.position.push_back(0.0);
+	jointState.position.push_back(0.0);
+	jointState.position.push_back(0.0);
+	jointState.position.push_back(0.0);
+	jointState.position.push_back(0.0);
+	jointState.position.push_back(0.0);
+	while (ros::ok()){
+
+		if(trig_command==1 && q_list.size()>0){
+			
+			
+			double dt = 0.001;
+		        std::vector<std::array<double,7>> trajectory = splineJointTrajectory(q_list,end_time,dt, 1);
+			for(int index = 0;index<trajectory.size()-1;index++){
+			  franka::JointVelocities velocities{{0, 0, 0, 0, 0, 0, 0}};
+
+			  velocities.dq[0] = trajectory.at(index)[0];
+			  velocities.dq[1] = trajectory.at(index)[1];
+			  velocities.dq[2] = trajectory.at(index)[2];
+			  velocities.dq[3] = trajectory.at(index)[3];
+			  velocities.dq[4] = trajectory.at(index)[4];
+			  velocities.dq[5] = trajectory.at(index)[5];
+			  velocities.dq[6] = trajectory.at(index)[6];
+			  //std::cout<<"index "<<index<<"  :  ";
+			  print_q(velocities.dq);
 			}
+			trig_command = 0;
+			q_list.clear();
+		}
+		jointState.header.stamp = ros::Time::now();
+		jointState.position[0] = move_joint_values[0];
+		jointState.position[1] = move_joint_values[1];
+		jointState.position[2] = move_joint_values[2];
+		jointState.position[3] = move_joint_values[3];
+		jointState.position[4] = move_joint_values[4];
+		jointState.position[5] = move_joint_values[5];
+		jointState.position[6] = move_joint_values[6];
+		pub.publish(jointState);
+
+		
+		ros::spinOnce();
+	}
+
 }
 
    
