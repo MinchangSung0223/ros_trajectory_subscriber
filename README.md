@@ -21,3 +21,6 @@ python publisher
 ```bash
  ./joint_publisher.py  0.000 -0.785 0.000 -2.356 0.000 1.571 1.585
 ```
+
+
+joint_state를 publish 하도록 수정했습니다.
