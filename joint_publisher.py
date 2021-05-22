@@ -1,0 +1,60 @@
+#!/usr/bin/python
+import sys
+import rospy, math, time
+import numpy as np
+from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
+
+
+
+joint_trajectory_list = np.array([[0.0, -0.7850857777, 0.0, -2.3555949, 0.0, 1.57091693296, 0.7855189329599999],
+[-0.07478401780869347, -0.7538728451235789, 0.05965301291842802, -2.323885866110943, 0.024057782697760963, 1.5777062597760287, 0.9060992117818181],
+[-0.14956803561738694, -0.7226599125471577, 0.11930602583685604, -2.292176832221887, 0.04811556539552193, 1.5844955865920578, 1.0266794906036363],
+[-0.22435205342608036, -0.6914469799707366, 0.17895903875528404, -2.2604677983328303, 0.07217334809328288, 1.5912849134080866, 1.1472597694254543],
+[-0.29913607123477387, -0.6602340473943153, 0.23861205167371208, -2.2287587644437736, 0.09623113079104385, 1.5980742402241155, 1.2678400482472727],
+[-0.3739200890434673, -0.6290211148178942, 0.2982650645921401, -2.1970497305547174, 0.12028891348880481, 1.6048635670401445, 1.3884203270690907],
+[-0.4487041068521607, -0.5978081822414731, 0.3579180775105681, -2.1653406966656608, 0.14434669618656576, 1.6116528938561734, 1.5090006058909091],
+[-0.5234881246608543, -0.5665952496650519, 0.41757109042899615, -2.1336316627766045, 0.16840447888432675, 1.6184422206722024, 1.629580884712727],
+[-0.5982721424695477, -0.5353823170886308, 0.47722410334742416, -2.101922628887548, 0.1924622615820877, 1.6252315474882313, 1.7501611635345455],
+[-0.6730561602782412, -0.5041693845122096, 0.5368771162658522, -2.0702135949984912, 0.21652004427984867, 1.6320208743042601, 1.8707414423563635],
+[-0.7478401780869346, -0.4729564519357885, 0.5965301291842802, -2.038504561109435, 0.24057782697760963, 1.6388102011202892, 1.991321721178182],
+[-0.8226241958956281, -0.44174351935936734, 0.6561831421027082, -2.0067955272203784, 0.2646356096753706, 1.645599527936318, 2.1119019999999997]],dtype=float)
+
+if __name__ == "__main__":
+	pub = rospy.Publisher('/joint_trajectory', JointTrajectory, queue_size=10)
+	rospy.init_node('joint_trajectory_pub')
+	rate = rospy.Rate(10)
+	if len(sys.argv) <8:
+		print("ERROR:Please Input joint values ")
+		exit(0);
+
+
+	jt = JointTrajectory()
+	jt.header.stamp = rospy.Time.now()
+	jt.joint_names.append("panda_joint1" )
+	jt.joint_names.append("panda_joint2" )
+	jt.joint_names.append("panda_joint3" )
+	jt.joint_names.append("panda_joint4" )
+	jt.joint_names.append("panda_joint5" )
+	jt.joint_names.append("panda_joint6" )
+	jt.joint_names.append("panda_joint7" )
+	N = 30;
+	for i in range(0,len(joint_trajectory_list)):
+		
+		points = JointTrajectoryPoint();
+		temp = joint_trajectory_list[i]
+		points.positions.append(float(temp[0]));
+		points.positions.append(float(temp[1]));
+		points.positions.append(float(temp[2]));
+		points.positions.append(float(temp[3]));
+		points.positions.append(float(temp[4]));
+		points.positions.append(float(temp[5]));
+		points.positions.append(float(temp[6]));
+		points.time_from_start =  rospy.Duration.from_sec(0.01);
+		jt.points.append(points)
+	rospy.loginfo(points)
+	pub.publish(jt)
+	rate.sleep()
+	pub.publish(jt)
+	rate.sleep()
+	pub.publish(jt)
+	rate.sleep()
