@@ -1,5 +1,8 @@
 
 # ros_trajectory_subscriber
+
+libfranka
+
 ## Ros jointTrajectory Subscriber
 ```bash
 cd /usr/include; ln -s eigen3/Eigen Eigen;
