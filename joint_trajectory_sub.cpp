@@ -268,9 +268,9 @@ int main(int argc, char** argv) {
 		size_t count = 0;
 		robot.read([&count](const franka::RobotState& robot_state) {
 			move_joint_values=robot_state.q;
-			return count++ < 1;
+			return count++ < 2;
 		});
-
+		print_q(move_joint_values);
 		jointState.header.stamp = ros::Time::now();
 		jointState.position[0] = move_joint_values[0];
 		jointState.position[1] = move_joint_values[1];
