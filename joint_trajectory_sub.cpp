@@ -235,7 +235,7 @@ int main(int argc, char** argv) {
 	setDefaultBehavior(robot);
 	std::cerr << "Robot is Connected "  << std::endl;
 	try{
-		ros::init(argc,argv,"trajectory_test_sub");
+		ros::init(argc,argv,"trajectory_subscriber");
 	}
 	catch(int e){
 		ctrlchandler(1);
@@ -265,7 +265,6 @@ int main(int argc, char** argv) {
 	while(ros::ok()){
 
 
-		/*		
 		size_t count = 0;
 		robot.read([&count](const franka::RobotState& robot_state) {
 			move_joint_values=robot_state.q;
@@ -281,7 +280,7 @@ int main(int argc, char** argv) {
 		jointState.position[5] = move_joint_values[5];
 		jointState.position[6] = move_joint_values[6];
 		pub.publish(jointState);
-		*/
+
 		if(trig_command==1 && q_list.size()>0){
 			try {
 				if(q_list.size()==0)continue;
