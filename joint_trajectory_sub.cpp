@@ -37,48 +37,6 @@ void rosJointTrajectoryCallback(const trajectory_msgs::JointTrajectory::ConstPtr
 	}
 }
 
-void *jointStaesPublisher(void *a){
-	int argc;
-	char **argv;
-        ros::init(argc,argv,"joint_state_pub");
-	ros::NodeHandle nh;
-	ros::Publisher pub =  nh.advertise<sensor_msgs::JointState>("joint_states", 1000);
-
-	signal(SIGINT, ctrlchandler);
-	signal(SIGTERM, killhandler);
-	sensor_msgs::JointState jointState;
-	jointState.name.push_back("panda_joint1");
-	jointState.name.push_back("panda_joint2");
-	jointState.name.push_back("panda_joint3");
-	jointState.name.push_back("panda_joint4");
-	jointState.name.push_back("panda_joint5");
-	jointState.name.push_back("panda_joint6");
-	jointState.name.push_back("panda_joint7");
-	jointState.position.push_back(0.0);
-	jointState.position.push_back(0.0);
-	jointState.position.push_back(0.0);
-	jointState.position.push_back(0.0);
-	jointState.position.push_back(0.0);
-	jointState.position.push_back(0.0);
-	jointState.position.push_back(0.0);
-	ros::Rate r(10);
-	std::cout<<"ROS JOINT STATE PUBLISHER IS ON"<<std::endl;
-	while (ros::ok()){
-		ros::spinOnce();
-		
-		jointState.header.stamp = ros::Time::now();
-		jointState.position[0] = move_joint_values[0];
-		jointState.position[1] = move_joint_values[1];
-		jointState.position[2] = move_joint_values[2];
-		jointState.position[3] = move_joint_values[3];
-		jointState.position[4] = move_joint_values[4];
-		jointState.position[5] = move_joint_values[5];
-		jointState.position[6] = move_joint_values[6];
-		pub.publish(jointState);
-	}
-}
-
-
 std::vector<std::array<double,7>> splineJointTrajectory(std::vector<std::array<double,7>> q_list,double Tf, double dt, int deriv_num) {
 
    int N = q_list.size();
@@ -86,8 +44,9 @@ std::vector<std::array<double,7>> splineJointTrajectory(std::vector<std::array<d
 
    for(int j=0;j<N;j++){
 	Tlist.push_back(double(Tf/(N-1)*j/1.0));
-        
    }		
+   std::cout<<"-----------Tlist-----------"<<std::endl;
+   std::cout<<"-----------thetalist-----------"<<std::endl;
    std::vector<std::vector<double>> all_spline_thetalist;
    std::vector<std::vector<double>> all_spline_dthetalist;
 
@@ -97,11 +56,13 @@ std::vector<std::array<double,7>> splineJointTrajectory(std::vector<std::array<d
 		   std::array<double,7> temp=q_list.at(i);
 	  	   thetalist.push_back(temp[j]);
 	   }
-	   tk::spline s(Tlist,thetalist);
+	   tk::spline s(Tlist,thetalist,tk::spline::cspline,false,
+		tk::spline::first_deriv,0.0,
+	       	tk::spline::first_deriv,0.0);
            std::vector<double> spline_thetalist;
            std::vector<double> spline_dthetalist;
 
-	   for(double t=0;t<=Tf;){
+	   for(double t=0+dt;t<=Tf;){
 		spline_thetalist.push_back(s(t));
 		spline_dthetalist.push_back(s.deriv(1,t));
 		t = t+dt;
@@ -129,16 +90,13 @@ std::vector<std::array<double,7>> splineJointTrajectory(std::vector<std::array<d
 	   }
 	   spline_dq_list.push_back(temp);
    }
+
    if (deriv_num==0)
 	   return spline_q_list;
    else if (deriv_num==1)
 	   return spline_dq_list;
 
 }
-
-
-
-
 
 
 namespace {
