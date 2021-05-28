@@ -228,7 +228,7 @@ int main(int argc, char** argv) {
 			move_joint_values=robot_state.q;
 			return count++ < 2;
 		});
-		print_q(move_joint_values);
+		//print_q(move_joint_values);
 		jointState.header.stamp = ros::Time::now();
 		jointState.position[0] = move_joint_values[0];
 		jointState.position[1] = move_joint_values[1];
@@ -262,7 +262,7 @@ int main(int argc, char** argv) {
 
 			    double dt = 0.001;
 		            std::vector<std::array<double,7>> trajectory = splineJointTrajectory(q_list,end_time,dt, 1);
-
+			     print_q(trajectory.at(trajectory.size()-1));
 			    robot.control([&](const franka::RobotState& robot_state, franka::Duration) -> franka::Torques {return controller.step(robot_state);},
 				[&](const franka::RobotState&, franka::Duration period) -> franka::JointVelocities {
 					  index += period.toMSec();
