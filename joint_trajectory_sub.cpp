@@ -56,9 +56,7 @@ std::vector<std::array<double,7>> splineJointTrajectory(std::vector<std::array<d
 		   std::array<double,7> temp=q_list.at(i);
 	  	   thetalist.push_back(temp[j]);
 	   }
-	   tk::spline s(Tlist,thetalist,tk::spline::cspline,false,
-		tk::spline::first_deriv,0.0,
-	       	tk::spline::first_deriv,0.0);
+	   tk::spline s(Tlist,thetalist,tk::spline::cspline,false, tk::spline::first_deriv,0.0,tk::spline::first_deriv,0.0);
            std::vector<double> spline_thetalist;
            std::vector<double> spline_dthetalist;
 
@@ -262,7 +260,6 @@ int main(int argc, char** argv) {
 
 			    double dt = 0.001;
 		            std::vector<std::array<double,7>> trajectory = splineJointTrajectory(q_list,end_time,dt, 1);
-			     print_q(trajectory.at(trajectory.size()-1));
 			    robot.control([&](const franka::RobotState& robot_state, franka::Duration) -> franka::Torques {return controller.step(robot_state);},
 				[&](const franka::RobotState&, franka::Duration period) -> franka::JointVelocities {
 					  index += period.toMSec();
@@ -278,8 +275,15 @@ int main(int argc, char** argv) {
 					  velocities.dq[4] = trajectory.at(index)[4];
 					  velocities.dq[5] = trajectory.at(index)[5];
 					  velocities.dq[6] = trajectory.at(index)[6];
-
+					  print_q(velocities.dq);
 					  if (index >= trajectory.size() - 1) {
+	  					  velocities.dq[0] = 0.0;
+						  velocities.dq[1] = 0.0;
+						  velocities.dq[2] = 0.0;
+						  velocities.dq[3] = 0.0;
+						  velocities.dq[4] = 0.0;
+						  velocities.dq[5] = 0.0;
+						  velocities.dq[6] = 0.0;
 					    return franka::MotionFinished(velocities);
 					  }
 					  return velocities;
