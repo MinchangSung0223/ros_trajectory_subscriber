@@ -39,6 +39,7 @@ void rosJointTrajectoryCallback(const trajectory_msgs::JointTrajectory::ConstPtr
 
 std::vector<std::array<double,7>> splineJointTrajectory(std::vector<std::array<double,7>> q_list,double Tf, double dt, int deriv_num) {
 
+
    int N = q_list.size();
    std::vector<double> Tlist;
 
@@ -46,7 +47,7 @@ std::vector<std::array<double,7>> splineJointTrajectory(std::vector<std::array<d
 	Tlist.push_back(double(Tf/(N-1)*j/1.0));
    }		
    std::cout<<"-----------Tlist-----------"<<std::endl;
-   std::cout<<"-----------thetalist-----------"<<std::endl;
+   std::cout<<"-----------thetalist-----------"<<q_list.size()<<std::endl;
    std::vector<std::vector<double>> all_spline_thetalist;
    std::vector<std::vector<double>> all_spline_dthetalist;
 
@@ -240,7 +241,7 @@ int main(int argc, char** argv) {
 
 		if(trig_command==1 && q_list.size()>0){
 			try {
-				if(q_list.size()==0)continue;
+				if(q_list.size()<3)continue;
 				// First move the robot to a suitable joint configuration
 				std::array<double, 7> q_goal = q_list.at(0);
 				MotionGenerator motion_generator(0.5, q_goal);
@@ -267,6 +268,7 @@ int main(int argc, char** argv) {
 				//std::vector<double> trajectory = generateTrajectory(max_acceleration);
 
 			    double dt = 0.001;
+			    
 		            std::vector<std::array<double,7>> trajectory = splineJointTrajectory(q_list,end_time,dt, 1);
 			    robot.control([&](const franka::RobotState& robot_state, franka::Duration) -> franka::Torques {return controller.step(robot_state);},
 				[&](const franka::RobotState&, franka::Duration period) -> franka::JointVelocities {
@@ -344,7 +346,10 @@ else{
 	while (ros::ok()){
 
 		if(trig_command==1 && q_list.size()>0){
-			
+				std::cout<<"QLIST SIZE :"<<q_list.size()<<std::endl;
+			if(q_list.size()<3){
+				q_list.push_back(q_list.at(q_list.size()-1));
+				}
 			
 			double dt = 0.001;
 		        std::vector<std::array<double,7>> trajectory = splineJointTrajectory(q_list,end_time,dt, 1);
@@ -359,7 +364,7 @@ else{
 			  velocities.dq[5] = trajectory.at(index)[5];
 			  velocities.dq[6] = trajectory.at(index)[6];
 			  //std::cout<<"index "<<index<<"  :  ";
-			  print_q(velocities.dq);
+			  //print_q(velocities.dq);
 			}
 			trig_command = 0;
 			q_list.clear();
