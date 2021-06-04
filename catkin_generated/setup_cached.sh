@@ -7,6 +7,8 @@
 # new environment variables
 
 # modified environment variables
-export CMAKE_PREFIX_PATH="/home/sung/Workspace/ros_trajectory_subscriber3/devel:$CMAKE_PREFIX_PATH"
-export ROSLISP_PACKAGE_DIRECTORIES="/home/sung/Workspace/ros_trajectory_subscriber3/devel/share/common-lisp:$ROSLISP_PACKAGE_DIRECTORIES"
-export ROS_PACKAGE_PATH="/home/sung/Workspace/ros_trajectory_subscriber:/home/sung/Workspace/ros_trajectory_subscriber2:/home/sung/Workspace/ros_trajectory_subscriber3:$ROS_PACKAGE_PATH"
+export CMAKE_PREFIX_PATH="/root/workspace/ros_trajectory_subscriber/devel:$CMAKE_PREFIX_PATH"
+export LD_LIBRARY_PATH='/opt/ros/kinetic/lib:/opt/ros/kinetic/lib/x86_64-linux-gnu:/usr/local/cuda/lib64:/usr/local/cuda-10.0/lib64:/usr/local/lib/x86_64-linux-gnu:/usr/local/lib/i386-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/i386-linux-gnu:/usr/local/nvidia/lib:/usr/local/nvidia/lib64:/usr/local/nvidia/lib:/usr/local/nvidia/lib64'
+export PATH='/opt/ros/kinetic/bin:/opt/conda/envs/ros/bin:/usr/local/cuda/bin://usr/local/cuda-10.0/bin:/usr/local/nvidia/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+export ROSLISP_PACKAGE_DIRECTORIES='/root/workspace/ros_trajectory_subscriber/devel/share/common-lisp'
+export ROS_PACKAGE_PATH="/home/sung/Workspace/ros_trajectory_subscriber:/home/sung/Workspace/ros_trajectory_subscriber2:/home/sung/Workspace/ros_trajectory_subscriber3:/root/workspace/ros_trajectory_subscriber:$ROS_PACKAGE_PATH"

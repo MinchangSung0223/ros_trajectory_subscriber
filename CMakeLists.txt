@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(Franka REQUIRED)
 find_package(Eigen3 REQUIRED)
 
-find_package(Poco REQUIRED COMPONENTS Foundation)
+
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs

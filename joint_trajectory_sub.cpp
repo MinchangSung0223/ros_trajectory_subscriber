@@ -90,6 +90,7 @@ std::vector<std::array<double,7>> splineJointTrajectory(std::vector<std::array<d
    }
 
    if (deriv_num==0)
+	   
 	   return spline_q_list;
    else if (deriv_num==1)
 	   return spline_dq_list;
@@ -250,11 +251,18 @@ int main(int argc, char** argv) {
 				std::cout << "Finished moving to initial joint configuration." << std::endl;
 				// Set additional parameters always before the control loop, NEVER in the control loop!
 				// Set collision behavior.
-				robot.setCollisionBehavior(
-				{{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}}, {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}},
-				{{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}}, {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}},
-				{{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}}, {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}},
-				{{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}}, {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}});
+				//robot.setCollisionBehavior(
+				//{{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}}, {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}},
+				//{{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}}, {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}},
+				//{{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}}, {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}},
+				//{{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}}, {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}});
+				
+				
+				    robot.setCollisionBehavior({{100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0}},
+                               {{100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0}},
+                               {{100.0, 100.0, 100.0, 100.0, 100.0, 100.0}},
+                               {{100.0, 100.0, 100.0, 100.0, 100.0, 100.0}});
+
 				size_t index = 0;
 				//std::vector<double> trajectory = generateTrajectory(max_acceleration);
 
@@ -376,3 +384,4 @@ else{
 
 
 }
+
