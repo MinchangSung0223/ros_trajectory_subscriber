@@ -241,7 +241,7 @@ int main(int argc, char** argv) {
 
 		if(trig_command==1 && q_list.size()>0){
 			try {
-				if(q_list.size()<3)continue;
+
 				// First move the robot to a suitable joint configuration
 				std::array<double, 7> q_goal = q_list.at(0);
 				MotionGenerator motion_generator(0.5, q_goal);
@@ -268,7 +268,10 @@ int main(int argc, char** argv) {
 				//std::vector<double> trajectory = generateTrajectory(max_acceleration);
 
 			    double dt = 0.001;
-			    
+				if(q_list.size()<3){
+					q_list.push_back(q_list.at(q_list.size()-1));
+				}
+
 		            std::vector<std::array<double,7>> trajectory = splineJointTrajectory(q_list,end_time,dt, 1);
 			    robot.control([&](const franka::RobotState& robot_state, franka::Duration) -> franka::Torques {return controller.step(robot_state);},
 				[&](const franka::RobotState&, franka::Duration period) -> franka::JointVelocities {
